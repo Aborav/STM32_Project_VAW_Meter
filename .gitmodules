@@ -1,0 +1,3 @@
+[submodule "UsrLibs/STM32_Library_ST7735"]
+	path = UsrLibs/STM32_Library_ST7735
+	url = git@github.com:Aborav/STM32_Library_ST7735.git
