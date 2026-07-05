@@ -18,12 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f0xx_ll_gpio.h"
+#include "st7735.h"
+#include "stm32f0xx_ll_spi.h"
 #include "stm32f0xx_ll_utils.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "st7735.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,7 +100,10 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
+  LL_mDelay(1000);
+  LL_SPI_Enable(SPI1);
+  ST7735_Init();
+  ST7735_BL_ON();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -107,8 +111,15 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    LL_GPIO_TogglePin(DISP_LED_GPIO_Port, DISP_LED_Pin);
-    LL_mDelay(3000);
+    ST7735_FillScreen(0xF800); //red
+	  //ST7735_DrawPixel(80, 64,0xFFFF);
+	  LL_mDelay(500);
+	  ST7735_FillScreen(0x0400); //green
+	  //ST7735_DrawPixel(80, 64,0xFFFF);
+	  LL_mDelay(500);
+	  ST7735_FillScreen(0x001F); //blue
+	  //ST7735_DrawPixel(80, 64,0xFFFF);
+	  LL_mDelay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -269,13 +280,13 @@ static void MX_SPI1_Init(void)
   SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
   SPI_InitStruct.ClockPhase = LL_SPI_PHASE_1EDGE;
   SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV4;
+  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV8;
   SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
   SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
   SPI_InitStruct.CRCPoly = 7;
   LL_SPI_Init(SPI1, &SPI_InitStruct);
   LL_SPI_SetStandard(SPI1, LL_SPI_PROTOCOL_MOTOROLA);
-  LL_SPI_EnableNSSPulseMgt(SPI1);
+  LL_SPI_DisableNSSPulseMgt(SPI1);
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
@@ -358,16 +369,16 @@ static void MX_GPIO_Init(void)
   LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(DISP_LED_GPIO_Port, DISP_LED_Pin);
+  LL_GPIO_ResetOutputPin(ST7735_BL_GPIO_Port, ST7735_BL_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(DISP_DC_GPIO_Port, DISP_DC_Pin);
+  LL_GPIO_SetOutputPin(ST7735_DC_GPIO_Port, ST7735_DC_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(DISP_RST_GPIO_Port, DISP_RST_Pin);
+  LL_GPIO_ResetOutputPin(ST7735_RST_GPIO_Port, ST7735_RST_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(DISP_CS_GPIO_Port, DISP_CS_Pin);
+  LL_GPIO_ResetOutputPin(ST7735_CS_GPIO_Port, ST7735_CS_Pin);
 
   /**/
   LL_GPIO_ResetOutputPin(TEMP_GPIO_Port, TEMP_Pin);
@@ -381,36 +392,36 @@ static void MX_GPIO_Init(void)
   LL_GPIO_Init(TL494_ON_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = DISP_LED_Pin;
+  GPIO_InitStruct.Pin = ST7735_BL_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(DISP_LED_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(ST7735_BL_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = DISP_DC_Pin;
+  GPIO_InitStruct.Pin = ST7735_DC_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(DISP_DC_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(ST7735_DC_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = DISP_RST_Pin;
+  GPIO_InitStruct.Pin = ST7735_RST_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(DISP_RST_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(ST7735_RST_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = DISP_CS_Pin;
+  GPIO_InitStruct.Pin = ST7735_CS_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(DISP_CS_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(ST7735_CS_GPIO_Port, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = TEMP_Pin;

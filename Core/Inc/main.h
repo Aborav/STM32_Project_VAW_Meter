@@ -75,14 +75,14 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define TL494_ON_Pin LL_GPIO_PIN_0
 #define TL494_ON_GPIO_Port GPIOA
-#define DISP_LED_Pin LL_GPIO_PIN_1
-#define DISP_LED_GPIO_Port GPIOA
-#define DISP_DC_Pin LL_GPIO_PIN_2
-#define DISP_DC_GPIO_Port GPIOA
-#define DISP_RST_Pin LL_GPIO_PIN_3
-#define DISP_RST_GPIO_Port GPIOA
-#define DISP_CS_Pin LL_GPIO_PIN_4
-#define DISP_CS_GPIO_Port GPIOA
+#define ST7735_BL_Pin LL_GPIO_PIN_1
+#define ST7735_BL_GPIO_Port GPIOA
+#define ST7735_DC_Pin LL_GPIO_PIN_2
+#define ST7735_DC_GPIO_Port GPIOA
+#define ST7735_RST_Pin LL_GPIO_PIN_3
+#define ST7735_RST_GPIO_Port GPIOA
+#define ST7735_CS_Pin LL_GPIO_PIN_4
+#define ST7735_CS_GPIO_Port GPIOA
 #define FAN_PWM_Pin LL_GPIO_PIN_6
 #define FAN_PWM_GPIO_Port GPIOA
 #define TEMP_Pin LL_GPIO_PIN_1
