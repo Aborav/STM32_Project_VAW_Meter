@@ -1,3 +1,6 @@
 [submodule "UsrLibs/STM32_Library_ST7735"]
 	path = UsrLibs/STM32_Library_ST7735
 	url = git@github.com:Aborav/STM32_Library_ST7735.git
+[submodule "UsrLibs/STM32_Library_My_Graphic_Lib"]
+	path = UsrLibs/STM32_Library_My_Graphic_Lib
+	url = git@github.com:Aborav/STM32_Library_My_Graphic_Lib.git
