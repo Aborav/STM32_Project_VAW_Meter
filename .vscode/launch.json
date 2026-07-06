@@ -56,7 +56,7 @@
             "name": "ST-Link GDB Server",
             "type": "cortex-debug",
             "request": "launch",
-            "executable": "${workspaceFolder}/build/Debug/${workspaceFolderBasename}.elf",
+            "executable": "${workspaceFolder}/build/Release/${workspaceFolderBasename}.elf",
             "servertype": "stlink",
             "device": "STM32F030F4P6",
             "interface": "swd",

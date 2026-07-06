@@ -1,30 +1,32 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "st7735.h"
-#include "stm32f0xx_ll_spi.h"
-#include "stm32f0xx_ll_utils.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "MGL.h"
+#include "app_types.h"
+#include "display.h"
 #include "st7735.h"
+#include "stm32f0xx_ll_utils.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,26 +102,33 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  LL_mDelay(1000);
+  LL_mDelay(100);
+
+  // Main structure initialization
+  ////////////////////////////////////////////
+  rps_type rps = {0};
+
+  // Display
+  ////////////////////////////////////////////
+  DISP_GraphBarsStructInit(&rps);
   LL_SPI_Enable(SPI1);
   ST7735_Init();
   ST7735_BL_ON();
+
+  rps.val.volt = 2500;
+  rps.val.curr = 5000;
+  rps.val.watt = 1250;
+  DISP_StartPage(&rps);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1) {
+
+    DISP_MeasPage(&rps);
+    LL_mDelay(500);
     /* USER CODE END WHILE */
-    ST7735_FillScreen(0xF800); //red
-	  //ST7735_DrawPixel(80, 64,0xFFFF);
-	  LL_mDelay(500);
-	  ST7735_FillScreen(0x0400); //green
-	  //ST7735_DrawPixel(80, 64,0xFFFF);
-	  LL_mDelay(500);
-	  ST7735_FillScreen(0x001F); //blue
-	  //ST7735_DrawPixel(80, 64,0xFFFF);
-	  LL_mDelay(500);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -280,7 +289,7 @@ static void MX_SPI1_Init(void)
   SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
   SPI_InitStruct.ClockPhase = LL_SPI_PHASE_1EDGE;
   SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV8;
+  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV4;
   SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
   SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
   SPI_InitStruct.CRCPoly = 7;
@@ -372,16 +381,16 @@ static void MX_GPIO_Init(void)
   LL_GPIO_ResetOutputPin(ST7735_BL_GPIO_Port, ST7735_BL_Pin);
 
   /**/
-  LL_GPIO_SetOutputPin(ST7735_DC_GPIO_Port, ST7735_DC_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(ST7735_RST_GPIO_Port, ST7735_RST_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(ST7735_CS_GPIO_Port, ST7735_CS_Pin);
-
-  /**/
   LL_GPIO_ResetOutputPin(TEMP_GPIO_Port, TEMP_Pin);
+
+  /**/
+  LL_GPIO_SetOutputPin(ST7735_CS_GPIO_Port, ST7735_CS_Pin);
+
+  /**/
+  LL_GPIO_SetOutputPin(ST7735_RST_GPIO_Port, ST7735_RST_Pin);
+
+  /**/
+  LL_GPIO_SetOutputPin(ST7735_DC_GPIO_Port, ST7735_DC_Pin);
 
   /**/
   GPIO_InitStruct.Pin = TL494_ON_Pin;
@@ -400,12 +409,12 @@ static void MX_GPIO_Init(void)
   LL_GPIO_Init(ST7735_BL_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = ST7735_DC_Pin;
+  GPIO_InitStruct.Pin = ST7735_CS_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(ST7735_DC_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(ST7735_CS_GPIO_Port, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = ST7735_RST_Pin;
@@ -416,12 +425,12 @@ static void MX_GPIO_Init(void)
   LL_GPIO_Init(ST7735_RST_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = ST7735_CS_Pin;
+  GPIO_InitStruct.Pin = ST7735_DC_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(ST7735_CS_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(ST7735_DC_GPIO_Port, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = TEMP_Pin;
@@ -449,8 +458,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
+  while (1) {
   }
   /* USER CODE END Error_Handler_Debug */
 }
@@ -465,8 +473,9 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* User can add his own implementation to report the file name and line
+     number, ex: printf("Wrong parameters value: file %s on line %d\r\n", file,
+     line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
