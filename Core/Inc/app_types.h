@@ -25,9 +25,7 @@
 // timeout check
 
 /*---------------------------------------------TYPES------------------------------------------------*/
-// Unions for functions
-////////////////////////////////////////////////////////////
-typedef enum rps_channel_type { _VOLT = 0, _CURR = 1 } rps_channel_type;
+
 
 // Values structure
 ////////////////////////////////////////////////////////////
@@ -36,6 +34,7 @@ typedef struct _values_type {
   uint16_t volt; ///< value from measuring source (INA226)
   uint16_t curr; ///< value from measuring source (INA226)
   uint16_t watt; ///< value from measuring source (INA226)
+  int8_t temp_t; ///< termperature from transisotors sink DS18B20
 
 } values_type;
 
@@ -44,14 +43,8 @@ typedef struct _values_type {
 typedef struct _flags_type {
   // display
   unsigned disp_draw_start : 1; ///< draw object at start
+  unsigned reserved: 7;
 
-  // control
-  unsigned ctrl_start : 1;  ///< start to reach a set point
-  unsigned ctrl_stop : 1;   ///< stop control, turn off the output
-  unsigned ctrl_cv : 1;     ///< voltage is a master/slave
-  unsigned ctrl_cc : 1;     ///< current is a master/slave
-  unsigned ctrl_stages : 4; ///< stages of reach a set point sequence
-  rps_channel_type cv_cc;
 } flags_type;
 
 // Bits field for errors

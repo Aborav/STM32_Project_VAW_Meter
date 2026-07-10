@@ -48,7 +48,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t temp_arr[8];
+uint8_t temp_arr[10];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -136,7 +136,7 @@ int main(void) {
         DS18B20_TempRequest();
         LL_mDelay(500);
         DS18B20_ReadScratchpad(temp_arr);
-        
+        rps.val.temp_t = DS18B20_ReadTemp();
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
