@@ -4,15 +4,17 @@
     "cmake.environment": {
         "PATH": "/usr/bin"
     },
-    "clangd.path": "/usr/bin/clangd",
-    "clangd.arguments": [
-        "--compile-commands-dir=${workspaceFolder}/build/Release",
-        "--query-driver=/usr/bin/arm-none-eabi-gcc",
-        "--fallback-style={IndentWidth: 4}"
-    ],
+    
     "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd",
     "cortex-debug.stlinkPath": "/opt/st/stm32cubeide_1.19.0/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server.linux64_2.2.200.202505060755/tools/bin/ST-LINK_gdbserver",
-    "cortex-debug.stm32cubeprogrammer": "/opt/st/stm32cubeide_1.19.0/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.linux64_2.2.200.202503041107/tools/bin"
+    "cortex-debug.stm32cubeprogrammer": "/opt/st/stm32cubeide_1.19.0/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.linux64_2.2.200.202503041107/tools/bin",
+
+    "clangd.path": "/usr/bin/clangd",
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/build/Release",
+        "--query-driver=/usr/bin/arm-none-eabi-gcc",
+        "--fallback-style=LLVM"
+    ]
 }

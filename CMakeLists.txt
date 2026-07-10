@@ -49,7 +49,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_ST7735/st7735.c
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_My_Graphic_Lib/MGL.c
     ${CMAKE_SOURCE_DIR}/Core/Src/dislpay.c
-    
+    ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_DS18B20/ds18b20.c
 )
 
 # Add include paths
@@ -59,6 +59,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/UsrLibs
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_ST7735
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_My_Graphic_Lib
+    ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_DS18B20
 )
 
 # Add project symbols (macros)

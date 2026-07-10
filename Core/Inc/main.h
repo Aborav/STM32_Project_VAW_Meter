@@ -85,8 +85,8 @@ void Error_Handler(void);
 #define ST7735_DC_GPIO_Port GPIOA
 #define FAN_PWM_Pin LL_GPIO_PIN_6
 #define FAN_PWM_GPIO_Port GPIOA
-#define TEMP_Pin LL_GPIO_PIN_1
-#define TEMP_GPIO_Port GPIOB
+#define DS18B20_DQ_Pin LL_GPIO_PIN_1
+#define DS18B20_DQ_GPIO_Port GPIOB
 #ifndef NVIC_PRIORITYGROUP_0
 #define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
                                                                  4 bits for subpriority */
