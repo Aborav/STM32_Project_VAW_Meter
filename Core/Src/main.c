@@ -135,7 +135,7 @@ int main(void) {
         DISP_MeasPage(&rps);
         DS18B20_TempRequest();
         LL_mDelay(500);
-        DS18B20_ReadScratchpad(temp_arr);
+        DS18B20_ReadID(temp_arr);
         rps.val.temp_t = DS18B20_ReadTemp();
         /* USER CODE END WHILE */
 
