@@ -24,10 +24,11 @@
 #include "MGL.h"
 #include "app_types.h"
 #include "display.h"
+#include "ds18b20.h"
 #include "st7735.h"
 #include "stm32f0xx_ll_gpio.h"
 #include "stm32f0xx_ll_utils.h"
-#include "ds18b20.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,7 +38,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+// 0x28D94DFD0A6461
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,7 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t temp_arr[10];
+uint8_t id_bytes[8] = {0x28, 0x61, 0x64, 0x0A, 0xFD, 0x4D, 0xD9, 0xBB};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,7 +125,7 @@ int main(void) {
 
     // Temp sensor
     //////////////////////////////////////////
-    DS18B20_Init();
+    DS18B20_MULT_Init(id_bytes);
 
     /* USER CODE END 2 */
 
@@ -133,10 +134,9 @@ int main(void) {
     while (1) {
 
         DISP_MeasPage(&rps);
-        DS18B20_TempRequest();
+        DS18B20_MULT_TempRequest(id_bytes);
         LL_mDelay(500);
-        DS18B20_ReadID(temp_arr);
-        rps.val.temp_t = DS18B20_ReadTemp();
+        rps.val.temp_t = DS18B20_MULT_ReadTemp(id_bytes);
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
