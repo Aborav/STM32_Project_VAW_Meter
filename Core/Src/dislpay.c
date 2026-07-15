@@ -168,5 +168,5 @@ void DISP_MeasPage(rps_type *r) {
     curr_old = r->val.curr;
     watt_old = r->val.watt;
 
-    r->fl.disp_draw_start = 0;
+    r->fl.disp_draw_start = 1;
 }

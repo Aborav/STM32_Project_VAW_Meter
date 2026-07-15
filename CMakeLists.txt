@@ -50,6 +50,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_My_Graphic_Lib/MGL.c
     ${CMAKE_SOURCE_DIR}/Core/Src/dislpay.c
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_DS18B20/ds18b20.c
+    ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_INA226/M_INA226.c
+    ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Core_CMSIS_F0xx/CMSIS_I2C.c
+    ${CMAKE_SOURCE_DIR}/Core/Src/meas.c
 )
 
 # Add include paths
@@ -60,6 +63,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_ST7735
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_My_Graphic_Lib
     ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_DS18B20
+    ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Library_INA226
+    ${CMAKE_SOURCE_DIR}/UsrLibs/STM32_Core_CMSIS_F0xx
 )
 
 # Add project symbols (macros)

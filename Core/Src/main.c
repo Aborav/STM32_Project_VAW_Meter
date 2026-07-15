@@ -21,13 +21,18 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "CMSIS_I2C.h"
 #include "MGL.h"
+#include "M_INA226.h"
+#include "STM32_Library_INA226/M_INA226.h"
 #include "app_types.h"
 #include "display.h"
 #include "ds18b20.h"
 #include "st7735.h"
+#include "meas.h"
 #include "stm32f0xx_ll_gpio.h"
 #include "stm32f0xx_ll_utils.h"
+
 
 /* USER CODE END Includes */
 
@@ -127,12 +132,17 @@ int main(void) {
     //////////////////////////////////////////
     DS18B20_MULT_Init(id_bytes);
 
+    // INA226
+    //////////////////////////////////////////
+    // CMSIS_I2C_Enable();
+    INA_Init();
+
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1) {
-
+        VAW_Conversion(&rps);
         DISP_MeasPage(&rps);
         DS18B20_MULT_TempRequest(id_bytes);
         LL_mDelay(500);
