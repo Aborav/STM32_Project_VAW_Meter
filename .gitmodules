@@ -10,3 +10,6 @@
 [submodule "UsrLibs/STM32_Library_INA226"]
 	path = UsrLibs/STM32_Library_INA226
 	url = git@github.com:Aborav/STM32_Library_INA226.git
+[submodule "UsrLibs/STM32_Core_CMSIS_F0xx"]
+	path = UsrLibs/STM32_Core_CMSIS_F0xx
+	url = git@github.com:Aborav/STM32_Core_CMSIS_F0xx.git
