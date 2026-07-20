@@ -113,7 +113,7 @@ void DISP_StartPage(rps_type *r) {
 void DISP_MeasPage(rps_type *r) {
     RPS_CHECK_STRUCT_PTR();
 
-    static uint16_t volt_old, curr_old, watt_old;
+    static uint16_t volt_old, curr_old, watt_old, temp_old;
     // int16_t diff = 0; ///<differance between new and old values
 
     MGL_SET_FONT(FONT_17x24_FP);
@@ -159,14 +159,18 @@ void DISP_MeasPage(rps_type *r) {
     }
 
     // temparature
-    MGL_SET_CLR(FONT_COLOR);
-    MGL_SET_FONT(FONT_5x8_FP);
-    MGL_SetCursor(5 + 3 * (FONT_5x8_WIDTH + FONT_5x8_SPACING), LOW_INF_BAR_UPP_Y, &mgl_t);
-    MGL_PrintInt16_L((int8_t)r->val.temp_t, 3, &mgl_t);
+    if (temp_old - r->val.temp_t != 0) {
+        MGL_SET_CLR(FONT_COLOR);
+        MGL_SET_FONT(FONT_5x8_FP);
+        MGL_SetCursor(5 + 3 * (FONT_5x8_WIDTH + FONT_5x8_SPACING),
+                      LOW_INF_BAR_UPP_Y, &mgl_t);
+        MGL_PrintInt16_L((int8_t)r->val.temp_t, 3, &mgl_t);
+    }
 
     volt_old = r->val.volt;
     curr_old = r->val.curr;
     watt_old = r->val.watt;
+    temp_old = r->val.temp_t;
 
     r->fl.disp_draw_start = 1;
 }

@@ -43,7 +43,9 @@ typedef struct _values_type {
 typedef struct _flags_type {
   // display
   unsigned disp_draw_start : 1; ///< draw object at start
-  unsigned reserved: 7;
+  unsigned temp_conv_ready:1; ///< ds18b20 ready for temperature conversion
+  unsigned disp_meas_page:1; ///< draw measurement page
+  unsigned reserved: 4;  // reserved bits;
 
 } flags_type;
 
