@@ -81,20 +81,20 @@ void DISP_StartPage(rps_type *r) {
     MGL_SET_CLR(CURR_COLOR);
     MGL_SetCursor(108, VAW_CURRENT_Y, &mgl_t);
     MGL_PrintStr("A\0", &mgl_t);
-    MGL_FILL_RECT_WH(VAW_CURRENT_X + FONT_17x24_WIDTH * 1 + 4,
+    MGL_FILL_RECT_WH(VAW_CURRENT_X + FONT_17x24_WIDTH * 1 + 3,
                      VAW_CURRENT_Y + FONT_17x24_HEIGHT - 2, 2, 2, CURR_COLOR);
 
     MGL_SET_CLR(WATT_COLOR);
     MGL_SetCursor(108, VAW_WATTAGE_Y, &mgl_t);
     MGL_PrintStr("W\0", &mgl_t);
-    MGL_FILL_RECT_WH(VAW_WATTAGE_X + FONT_17x24_WIDTH * 3 + 4,
+    MGL_FILL_RECT_WH(VAW_WATTAGE_X + FONT_17x24_WIDTH * 3 + 7,
                      VAW_WATTAGE_Y + FONT_17x24_HEIGHT - 2, 2, 2, WATT_COLOR);
 
     // Information bar
     MGL_SET_CLR(FONT_COLOR);
     MGL_SET_FONT(FONT_5x8_FP);
-    MGL_SetCursor(5, LOW_INF_BAR_UPP_Y, &mgl_t);
-    MGL_PrintStr("Tt:\0", &mgl_t);
+    MGL_SetCursor(5, LOW_INF_BAR_LOW_Y, &mgl_t);
+    MGL_PrintStr("t:\0", &mgl_t);
     // MGL_SetCursor(5, LOW_INF_BAR_LOW_Y, &mgl_t);
     // MGL_PrintStr("DAC_I:\0", &mgl_t);
     // MGL_SetCursor(80, LOW_INF_BAR_UPP_Y, &mgl_t);
@@ -162,8 +162,8 @@ void DISP_MeasPage(rps_type *r) {
     if (temp_old - r->val.temp_t != 0) {
         MGL_SET_CLR(FONT_COLOR);
         MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SetCursor(5 + 3 * (FONT_5x8_WIDTH + FONT_5x8_SPACING),
-                      LOW_INF_BAR_UPP_Y, &mgl_t);
+        MGL_SetCursor(5 + 2 * (FONT_5x8_WIDTH + FONT_5x8_SPACING),
+                      LOW_INF_BAR_LOW_Y, &mgl_t);
         MGL_PrintInt16_L((int8_t)r->val.temp_t, 3, &mgl_t);
     }
 

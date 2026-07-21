@@ -73,7 +73,7 @@
 #define BAR_WATTAGE_X MEAS_FIELD_X + 142U
 #define BAR_WATTAGE_Y MEAS_FIELD_Y
 #define BAR_WIDTH 6U
-#define BAR_LENGTH 75U
+#define BAR_LENGTH 82U
 
 // Values
 /////////////////////////////////////////////////////

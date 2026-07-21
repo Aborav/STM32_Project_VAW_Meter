@@ -57,7 +57,7 @@
 /* USER CODE BEGIN PV */
 uint8_t id_bytes[8] = {0x28, 0x61, 0x64, 0x0A, 0xFD, 0x4D, 0xD9, 0xBB};
 extern volatile uint32_t tick_cnt;
-uint32_t mls_tmr_vaw_conv; ///< ms timer for VAW conversion
+uint32_t mls_tmr_vaw_conv;  ///< ms timer for VAW conversion
 uint32_t mls_tmr_temp_conv; ///< ms timer for temperature conversion
 /* USER CODE END PV */
 
@@ -115,6 +115,7 @@ int main(void) {
     MX_SPI1_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
+    SysTick_Init(); // systick start
     LL_mDelay(100);
 
     // Main structure initialization
@@ -135,45 +136,59 @@ int main(void) {
 
     // Temp sensor
     //////////////////////////////////////////
-    DS18B20_MULT_Init(id_bytes);
+    DS18B20_Init();
 
     // INA226
     //////////////////////////////////////////
     INA_Init();
+
+    // Fan test
+    //////////////////////////////////////////
+    LL_GPIO_SetOutputPin(FAN_PWM_GPIO_Port, FAN_PWM_Pin);
 
     // TL494 DTC on
     LL_GPIO_SetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
 
     // Flags initial state
     ////////////////////////////////////////
-    rps.fl.temp_conv_ready = 1; //first ds18b20 conversion
+    rps.fl.temp_conv_ready = 1; // first ds18b20 conversion
 
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1) {
-        if(GetTick() - mls_tmr_vaw_conv > 30) {
+        if (GetTick() - mls_tmr_vaw_conv >= 30) {
             mls_tmr_vaw_conv = GetTick();
-            VAW_Conversion(&rps);
+            //VAW_Conversion(&rps);
             rps.fl.disp_meas_page = 1;
         }
-        
-        if(rps.fl.disp_meas_page) {
+
+        if (rps.fl.disp_meas_page) {
             DISP_MeasPage(&rps);
             rps.fl.disp_meas_page = 0;
         }
 
         if (rps.fl.temp_conv_ready) {
-            DS18B20_MULT_TempRequest(id_bytes);
+            DS18B20_TempRequest();
             rps.fl.temp_conv_ready = 0;
         }
 
-        if(GetTick() - mls_tmr_temp_conv > 500) {
+        if (GetTick() - mls_tmr_temp_conv >= 500 || rps.fl.temp_conv_ready == 0) {
             mls_tmr_temp_conv = GetTick();
-            rps.fl.temp_conv_ready = 0;
-            DS18B20_MULT_TempRequest(id_bytes);
+            rps.fl.temp_conv_ready = 1;
+            rps.val.temp_t =  DS18B20_ReadTemp();
         }
+        // VAW_Conversion(&rps);
+        /*         DISP_MeasPage(&rps);
+                DS18B20_TempRequest();
+                LL_mDelay(200);
+                rps.val.temp_t =  DS18B20_ReadTemp();
+
+                if(GetTick() - mls_tmr_vaw_conv >= 1000){
+                    mls_tmr_temp_conv = GetTick();
+                    LL_GPIO_TogglePin(ST7735_BL_GPIO_Port  ,ST7735_BL_Pin);
+                } */
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -480,26 +495,26 @@ static void MX_GPIO_Init(void) {
 /* USER CODE BEGIN 4 */
 
 /**
-* @brief SysTick initialization
-* @param None
-* @return None
-*/
+ * @brief SysTick initialization
+ * @param None
+ * @return None
+ */
 void SysTick_Init(void) {
     // 1. Установить RELOAD для 1 мс (48 МГц / 1000 = 48000)
-    SysTick->LOAD = 48000 - 1;   // 47999
-    
+    SysTick->LOAD = 48000 - 1; // 47999
+
     // 2. Сбросить текущее значение
     SysTick->VAL = 0;
-    
+
     // 3. Настроить управление с помощью CMSIS макросов
     //    Очистить все биты (на всякий случай)
     SysTick->CTRL = 0;
     //    Bit 2 (CLKSOURCE) = 1 -> такт от CPU (48 МГц)
     SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk);
-    
+
     //    Bit 1 (TICKINT) = 1 -> разрешить прерывание
     SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
-    
+
     //    Bit 0 (ENABLE) = 1 -> включить таймер
     SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
 }
@@ -509,9 +524,7 @@ void SysTick_Init(void) {
  * @param  None
  * @retval ticks
  */
-uint32_t GetTick(void) {
-    return tick_cnt;
-}
+uint32_t GetTick(void) { return tick_cnt; }
 /* USER CODE END 4 */
 
 /**
