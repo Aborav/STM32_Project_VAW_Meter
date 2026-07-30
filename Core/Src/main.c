@@ -133,6 +133,7 @@ int main(void) {
     rps.val.curr = 5000;
     rps.val.watt = 1250;
     DISP_StartPage(&rps);
+    DISP_MeasPage(&rps);
 
     // Temp sensor
     //////////////////////////////////////////
@@ -141,10 +142,13 @@ int main(void) {
     // INA226
     //////////////////////////////////////////
     INA_Init();
+    INA_SetCalVal(4800);
 
     // Fan test
     //////////////////////////////////////////
     LL_GPIO_SetOutputPin(FAN_PWM_GPIO_Port, FAN_PWM_Pin);
+    LL_mDelay(300);
+    LL_GPIO_ResetOutputPin(FAN_PWM_GPIO_Port, FAN_PWM_Pin);
 
     // TL494 DTC on
     LL_GPIO_SetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
@@ -152,6 +156,7 @@ int main(void) {
     // Flags initial state
     ////////////////////////////////////////
     rps.fl.temp_conv_ready = 1; // first ds18b20 conversion
+    rps.fl.tl494_on = 1;
 
     /* USER CODE END 2 */
 
@@ -160,12 +165,11 @@ int main(void) {
     while (1) {
         if (GetTick() - mls_tmr_vaw_conv >= 30) {
             mls_tmr_vaw_conv = GetTick();
-            //VAW_Conversion(&rps);
+            VAW_Conversion(&rps);
             rps.fl.disp_meas_page = 1;
         }
-
-        if (rps.fl.disp_meas_page) {
-            DISP_MeasPage(&rps);
+        if (rps.fl.disp_meas_page == 1) {
+        DISP_MeasPage(&rps);
             rps.fl.disp_meas_page = 0;
         }
 
@@ -174,11 +178,13 @@ int main(void) {
             rps.fl.temp_conv_ready = 0;
         }
 
-        if (GetTick() - mls_tmr_temp_conv >= 500 || rps.fl.temp_conv_ready == 0) {
+        if (GetTick() - mls_tmr_temp_conv >= 1000 ||
+            rps.fl.temp_conv_ready == 0) {
             mls_tmr_temp_conv = GetTick();
             rps.fl.temp_conv_ready = 1;
-            rps.val.temp_t =  DS18B20_ReadTemp();
+            rps.val.temp_t = DS18B20_ReadTemp();
         }
+
         // VAW_Conversion(&rps);
         /*         DISP_MeasPage(&rps);
                 DS18B20_TempRequest();

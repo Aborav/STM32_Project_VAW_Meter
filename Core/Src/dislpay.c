@@ -5,6 +5,7 @@
  *      Author: aborav
  */
 #include "MGL.h"
+#include "M_INA226.h"
 #include "display.h"
 #include "main.h"
 #include <stdlib.h>
@@ -101,8 +102,6 @@ void DISP_StartPage(rps_type *r) {
     // MGL_PrintStr("SP_U:\0", &mgl_t);
     // MGL_SetCursor(80, LOW_INF_BAR_LOW_Y, &mgl_t);
     // MGL_PrintStr("SP_I:\0", &mgl_t);
-
-    r->fl.disp_draw_start = 1;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -114,16 +113,15 @@ void DISP_MeasPage(rps_type *r) {
     RPS_CHECK_STRUCT_PTR();
 
     static uint16_t volt_old, curr_old, watt_old, temp_old;
-    // int16_t diff = 0; ///<differance between new and old values
+    int16_t diff = 0; ///< differance between new and old values
 
     MGL_SET_FONT(FONT_17x24_FP);
+
     // voltage
-    //	diff = volt_old - r->val.volt;
-    //	if (diff < 0)
-    //		diff *= -1; //no matter is old value bigger or smaller than a
-    // new one 	if (diff > r->fl.tl494_on ? 1 : 0 || r->fl.start_draw) {
-    // //eliminate fluctuation of the value
-    if (volt_old - r->val.volt != 0 || r->fl.disp_draw_start) {
+    diff = volt_old - r->val.volt;
+    if (diff < 0)
+        diff *= -1; // no matter is old value bigger or smaller than a new one
+    if (diff > r->fl.tl494_on ? 1 : 0) {
         MGL_SET_CLR(VOLT_COLOR);
         MGL_SetCursor(VAW_VOLTAGE_X, VAW_VOLTAGE_Y, &mgl_t);
         // MGL_PrintFloatTiny_R(abs(r->val.volt - r->val.u_sp_val) < 3 ?
@@ -133,11 +131,10 @@ void DISP_MeasPage(rps_type *r) {
     }
 
     // current
-    //	diff = curr_old - r->val.curr;
-    //	if (diff < 0)
-    //		diff *= -1;
-    //	if (diff > r->fl.tl494_on ? 1 : 0 || r->fl.start_draw) {
-    if (curr_old - r->val.curr != 0 || r->fl.disp_draw_start) {
+    diff = curr_old - r->val.curr;
+    if (diff < 0)
+        diff *= -1;
+    if (diff > r->fl.tl494_on ? 1 : 0) {
         MGL_SET_CLR(CURR_COLOR);
         MGL_SetCursor(VAW_CURRENT_X, VAW_CURRENT_Y, &mgl_t);
         // MGL_PrintFloatTiny_R(abs(r->val.curr - r->val.i_sp_val) < 3 ?
@@ -147,11 +144,10 @@ void DISP_MeasPage(rps_type *r) {
     }
 
     // wattage
-    //	diff = watt_old - r->val.watt;
-    //	if (diff < 0)
-    //		diff *= -1;
-    //	if (diff > r->fl.tl494_on ? 1 : 0 || r->fl.start_draw) {
-    if (watt_old - r->val.watt != 0 || r->fl.disp_draw_start) {
+    diff = watt_old - r->val.watt;
+    if (diff < 0)
+        diff *= -1;
+    if (diff > r->fl.tl494_on ? 1 : 0) {
         MGL_SET_CLR(WATT_COLOR);
         MGL_SetCursor(VAW_WATTAGE_X, VAW_WATTAGE_Y, &mgl_t);
         MGL_PrintFloatTiny_R(r->val.watt, 4, 1, &mgl_t);
@@ -167,10 +163,16 @@ void DISP_MeasPage(rps_type *r) {
         MGL_PrintInt16_L((int8_t)r->val.temp_t, 3, &mgl_t);
     }
 
+/*     MGL_SET_CLR(FONT_COLOR);
+    MGL_SET_FONT(FONT_5x8_FP);
+    MGL_SetCursor(5 + 2 * (FONT_5x8_WIDTH + FONT_5x8_SPACING),
+                  LOW_INF_BAR_UPP_Y, &mgl_t);
+    MGL_PrintInt16_L(INA_GetCalVal(), 5, &mgl_t); */
+
     volt_old = r->val.volt;
     curr_old = r->val.curr;
     watt_old = r->val.watt;
     temp_old = r->val.temp_t;
 
-    r->fl.disp_draw_start = 1;
+    r->fl.disp_meas_page = 0;
 }
