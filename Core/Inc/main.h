@@ -38,6 +38,7 @@ extern "C" {
 #include "stm32f0xx_ll_pwr.h"
 #include "stm32f0xx_ll_dma.h"
 #include "stm32f0xx_ll_spi.h"
+#include "stm32f0xx_ll_tim.h"
 #include "stm32f0xx_ll_gpio.h"
 
 #if defined(USE_FULL_ASSERT)
@@ -84,8 +85,6 @@ void Error_Handler(void);
 #define ST7735_RST_GPIO_Port GPIOA
 #define ST7735_DC_Pin LL_GPIO_PIN_4
 #define ST7735_DC_GPIO_Port GPIOA
-#define FAN_PWM_Pin LL_GPIO_PIN_6
-#define FAN_PWM_GPIO_Port GPIOA
 #define DS18B20_DQ_Pin LL_GPIO_PIN_1
 #define DS18B20_DQ_GPIO_Port GPIOB
 #ifndef NVIC_PRIORITYGROUP_0

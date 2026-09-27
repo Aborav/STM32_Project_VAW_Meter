@@ -70,6 +70,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 void SysTick_Init(void);
 uint32_t GetTick(void);
@@ -118,6 +119,7 @@ int main(void) {
     MX_GPIO_Init();
     MX_I2C1_Init();
     MX_SPI1_Init();
+    MX_TIM16_Init();
     /* USER CODE BEGIN 2 */
     SysTick_Init(); // systick start
     LL_mDelay(100);
@@ -148,14 +150,10 @@ int main(void) {
     INA_Init();
     INA_SetCalVal(4800);
 
-    // Fan test
-    //////////////////////////////////////////
-    LL_GPIO_SetOutputPin(FAN_PWM_GPIO_Port, FAN_PWM_Pin);
-    LL_mDelay(1000);
-    LL_GPIO_ResetOutputPin(FAN_PWM_GPIO_Port, FAN_PWM_Pin);
-
-    // TL494 DTC on
-    LL_GPIO_SetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
+    // Fan timer
+    ////////////////////////////////////////
+    LL_TIM_CC_EnableChannel(TIM16, LL_TIM_CHANNEL_CH1);
+    LL_TIM_EnableAllOutputs(TIM16);
 
     // Flags initial state
     ////////////////////////////////////////
@@ -201,6 +199,7 @@ int main(void) {
             mls_tmr_temp_conv = GetTick();
             rps.fl.temp_conv_ready = 1;
             rps.val.temp_t = DS18B20_ReadTemp();
+            TempControl(&rps);
         }
         /* USER CODE END WHILE */
 
@@ -366,6 +365,71 @@ static void MX_SPI1_Init(void) {
 }
 
 /**
+ * @brief TIM16 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM16_Init(void) {
+
+    /* USER CODE BEGIN TIM16_Init 0 */
+
+    /* USER CODE END TIM16_Init 0 */
+
+    LL_TIM_InitTypeDef TIM_InitStruct = {0};
+    LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
+    LL_TIM_BDTR_InitTypeDef TIM_BDTRInitStruct = {0};
+
+    LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    /* Peripheral clock enable */
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_TIM16);
+
+    /* USER CODE BEGIN TIM16_Init 1 */
+
+    /* USER CODE END TIM16_Init 1 */
+    TIM_InitStruct.Prescaler = 0;
+    TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+    TIM_InitStruct.Autoreload = 2399;
+    TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+    TIM_InitStruct.RepetitionCounter = 0;
+    LL_TIM_Init(TIM16, &TIM_InitStruct);
+    LL_TIM_DisableARRPreload(TIM16);
+    LL_TIM_OC_EnablePreload(TIM16, LL_TIM_CHANNEL_CH1);
+    TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
+    TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
+    TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
+    TIM_OC_InitStruct.CompareValue = 0;
+    TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
+    TIM_OC_InitStruct.OCNPolarity = LL_TIM_OCPOLARITY_HIGH;
+    TIM_OC_InitStruct.OCIdleState = LL_TIM_OCIDLESTATE_LOW;
+    TIM_OC_InitStruct.OCNIdleState = LL_TIM_OCIDLESTATE_LOW;
+    LL_TIM_OC_Init(TIM16, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
+    LL_TIM_OC_DisableFast(TIM16, LL_TIM_CHANNEL_CH1);
+    TIM_BDTRInitStruct.OSSRState = LL_TIM_OSSR_DISABLE;
+    TIM_BDTRInitStruct.OSSIState = LL_TIM_OSSI_DISABLE;
+    TIM_BDTRInitStruct.LockLevel = LL_TIM_LOCKLEVEL_OFF;
+    TIM_BDTRInitStruct.DeadTime = 0;
+    TIM_BDTRInitStruct.BreakState = LL_TIM_BREAK_DISABLE;
+    TIM_BDTRInitStruct.BreakPolarity = LL_TIM_BREAK_POLARITY_HIGH;
+    TIM_BDTRInitStruct.AutomaticOutput = LL_TIM_AUTOMATICOUTPUT_DISABLE;
+    LL_TIM_BDTR_Init(TIM16, &TIM_BDTRInitStruct);
+    /* USER CODE BEGIN TIM16_Init 2 */
+
+    /* USER CODE END TIM16_Init 2 */
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+    /**TIM16 GPIO Configuration
+    PA6   ------> TIM16_CH1
+    */
+    GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
+    GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+    GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+    GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
+    LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -386,9 +450,6 @@ static void MX_GPIO_Init(void) {
 
     /**/
     LL_GPIO_ResetOutputPin(ST7735_BL_GPIO_Port, ST7735_BL_Pin);
-
-    /**/
-    LL_GPIO_ResetOutputPin(FAN_PWM_GPIO_Port, FAN_PWM_Pin);
 
     /**/
     LL_GPIO_SetOutputPin(ST7735_CS_GPIO_Port, ST7735_CS_Pin);
@@ -449,14 +510,6 @@ static void MX_GPIO_Init(void) {
     LL_GPIO_Init(ST7735_DC_GPIO_Port, &GPIO_InitStruct);
 
     /**/
-    GPIO_InitStruct.Pin = FAN_PWM_Pin;
-    GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-    GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-    GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-    LL_GPIO_Init(FAN_PWM_GPIO_Port, &GPIO_InitStruct);
-
-    /**/
     GPIO_InitStruct.Pin = DS18B20_DQ_Pin;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
     GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
@@ -511,11 +564,28 @@ void TempControl(rps_type *r) {
     if (r == 0) {
         return;
     }
-
+    if (r->val.temp_t >= TEMP_1ST_LIMIT && r->val.temp_t < TEMP_2ND_LIMIT) {
+        LL_TIM_OC_SetCompareCH1(TIM16, 1200);
+        LL_TIM_EnableCounter(TIM16);
+    }
+    if (r->val.temp_t >= TEMP_2ND_LIMIT && r->val.temp_t < TEMP_3RD_LIMIT) {
+        LL_TIM_OC_SetCompareCH1(TIM16, 1600);
+        LL_TIM_EnableCounter(TIM16);
+    }
+    if (r->val.temp_t >= TEMP_3RD_LIMIT && r->val.temp_t < TEMP_HIGH_LIMIT) {
+        LL_TIM_OC_SetCompareCH1(TIM16, 2000);
+        LL_TIM_EnableCounter(TIM16);
+    }
     if (r->val.temp_t >= TEMP_HIGH_LIMIT) {
+        LL_TIM_OC_SetCompareCH1(TIM16, 2400);
+        LL_TIM_EnableCounter(TIM16);
         LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
         r->fl.tl494_on = 0;
         r->fl.overheat = 1;
+        MGL_SET_CLR(FONT_COLOR);
+        MGL_SET_FONT(FONT_5x8_FP);
+        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        MGL_PrintStr("OVERHEAT", &mgl_t);
     }
 }
 
@@ -532,6 +602,10 @@ void CurrControl(rps_type *r) {
         LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
         r->fl.tl494_on = 0;
         r->fl.overcurr = 1;
+        MGL_SET_CLR(FONT_COLOR);
+        MGL_SET_FONT(FONT_5x8_FP);
+        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        MGL_PrintStr("OVERCURRENT", &mgl_t);
     }
 }
 /* USER CODE END 4 */

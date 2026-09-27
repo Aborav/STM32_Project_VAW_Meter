@@ -38,7 +38,8 @@
             "serverArgs": [
                 "-strict",
                 "-timeout",
-                "0"
+                "0",
+                "-vd"
             ],
             "swoConfig": {
                 "enabled": false

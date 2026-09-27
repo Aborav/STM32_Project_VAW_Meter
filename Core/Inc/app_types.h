@@ -26,11 +26,14 @@
 /////////////////////////////////////////////////////
 #define VAL_VOLT_MAX 2600U
 #define VAL_CURR_MAX 5000U
-#define VAL_WATT_MAX 1250U
+#define VAL_WATT_MAX 1300U
 
-#define BTN_DEBOUNCE_DELAY 100U
+#define BTN_DEBOUNCE_DELAY 300U
+
+#define TEMP_1ST_LIMIT 35U
+#define TEMP_2ND_LIMIT 40U
+#define TEMP_3RD_LIMIT 45U
 #define TEMP_HIGH_LIMIT 50U
-
 #define TEMP_CONVERS_TIME 1000U
 
 /*---------------------------------------------TYPES------------------------------------------------*/
