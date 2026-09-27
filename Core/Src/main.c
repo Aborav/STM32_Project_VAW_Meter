@@ -194,7 +194,7 @@ int main(void) {
             rps.fl.temp_conv_ready = 0;
         }
         // DS18B20 temperature conversion
-        if (GetTick() - mls_tmr_temp_conv >= TEMP_CONVERS_TIME ||
+        if (GetTick() - mls_tmr_temp_conv >= TEMP_CONVERS_TIME &&
             rps.fl.temp_conv_ready == 0) {
             mls_tmr_temp_conv = GetTick();
             rps.fl.temp_conv_ready = 1;
