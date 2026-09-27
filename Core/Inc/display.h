@@ -75,12 +75,6 @@
 #define BAR_WIDTH 6U
 #define BAR_LENGTH 82U
 
-// Values
-/////////////////////////////////////////////////////
-#define VAL_VOLT_MAX 2500
-#define VAL_CURR_MAX 5000
-#define VAL_WATT_MAX 1250
-
 /*---------------------------------------------TYPES------------------------------------------------*/
 extern mgl_bar_gr_type volt_bar, curr_bar, watt_bar; // progress bars init
 

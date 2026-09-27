@@ -38,7 +38,6 @@ extern "C" {
 #include "stm32f0xx_ll_pwr.h"
 #include "stm32f0xx_ll_dma.h"
 #include "stm32f0xx_ll_spi.h"
-#include "stm32f0xx_ll_tim.h"
 #include "stm32f0xx_ll_gpio.h"
 
 #if defined(USE_FULL_ASSERT)
@@ -73,6 +72,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define BTN_Pin LL_GPIO_PIN_0
+#define BTN_GPIO_Port GPIOF
 #define TL494_ON_Pin LL_GPIO_PIN_0
 #define TL494_ON_GPIO_Port GPIOA
 #define ST7735_BL_Pin LL_GPIO_PIN_1
