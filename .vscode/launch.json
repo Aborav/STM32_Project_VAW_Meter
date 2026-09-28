@@ -18,8 +18,7 @@
                 "-m",
                 "0",
                 "-s", //flash check after load
-                "-k", //connect under reset
-                "-d" //frequency output
+                "-k" //connect under reset
             ],
             "swoConfig": {
                 "enabled": false

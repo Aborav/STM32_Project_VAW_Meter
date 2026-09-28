@@ -17,7 +17,6 @@
 #define RPS_CHECK_STRUCT_PTR()                                                 \
     do {                                                                       \
         if (r == 0) {                                                          \
-            r->err.bit.empty_ptr = 1;                                          \
             return;                                                            \
         }                                                                      \
     } while (0);
@@ -30,10 +29,10 @@
 
 #define BTN_DEBOUNCE_DELAY 300U
 
-#define TEMP_1ST_LIMIT 35U
-#define TEMP_2ND_LIMIT 40U
-#define TEMP_3RD_LIMIT 45U
-#define TEMP_HIGH_LIMIT 50U
+#define TEMP_1ST_LIMIT 35
+#define TEMP_2ND_LIMIT 40
+#define TEMP_3RD_LIMIT 45
+#define TEMP_HIGH_LIMIT 50
 #define TEMP_CONVERS_TIME 1000U
 
 /*---------------------------------------------TYPES------------------------------------------------*/
@@ -62,28 +61,11 @@ typedef struct _flags_type {
 
 } flags_type;
 
-// Bits field for errors
-////////////////////////////////////////////////////////////
-typedef union _errors_type {
-    uint8_t all_errors;
-    struct {
-        unsigned cicle_timeout : 1; ///< we are stuck in a cycle
-        unsigned ina226_off : 1;    ///< INA226 doesn't respond at start
-        unsigned flash_erase : 1;   ///< flash erase error
-        unsigned flash_write : 1;   ///< flash write error
-        unsigned
-            wrong_channel : 1;  ///< wrong function input channel _CURR,_VOLT
-        unsigned empty_ptr : 1; ///< empty pointer as input
-        unsigned reserved : 3;
-    } bit;
-} errors_type;
-
 // COMMON STRUCTURE
 ////////////////////////////////////////////////////////////
 typedef struct _rps_type {
     values_type val;
     flags_type fl;
-    errors_type err;
 } rps_type;
 
 #endif /* INC_APP_TYPES_H_ */

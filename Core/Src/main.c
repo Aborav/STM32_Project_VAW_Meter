@@ -165,22 +165,10 @@ int main(void) {
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1) {
-        // Button handler
-        if (LL_GPIO_IsInputPinSet(BTN_GPIO_Port, BTN_Pin) == 0 &&
-            GetTick() - mls_btn_deb >= BTN_DEBOUNCE_DELAY) {
-            mls_btn_deb = GetTick();
-            rps.fl.tl494_on ^= 1;
-            if (rps.fl.tl494_on) {
-                LL_GPIO_SetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
-            } else {
-                LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
-            }
-        }
         // volt/amp/watt meter handler
         if (GetTick() - mls_tmr_vaw_conv >= SCREEN_REFRESH_RATE) {
             mls_tmr_vaw_conv = GetTick();
             VAW_Conversion(&rps);
-            CurrControl(&rps);
             rps.fl.disp_meas_page = 1;
         }
         // display handler
@@ -200,6 +188,7 @@ int main(void) {
             rps.fl.temp_conv_ready = 1;
             rps.val.temp_t = DS18B20_ReadTemp();
             TempControl(&rps);
+            CurrControl(&rps);
         }
         /* USER CODE END WHILE */
 
@@ -561,9 +550,14 @@ uint32_t GetTick(void) { return tick_cnt; }
  * @param[in] rps_type r
  */
 void TempControl(rps_type *r) {
-    if (r == 0) {
+    RPS_CHECK_STRUCT_PTR();
+
+    // here is overheat error just after start of the PS due to EMI
+    // This is protection. Start FAN control after 3 cycles
+    static uint64_t cnt;
+    if (cnt++ < 3)
         return;
-    }
+
     if (r->val.temp_t >= TEMP_1ST_LIMIT && r->val.temp_t < TEMP_2ND_LIMIT) {
         LL_TIM_OC_SetCompareCH1(TIM16, 1200);
         LL_TIM_EnableCounter(TIM16);
@@ -579,13 +573,12 @@ void TempControl(rps_type *r) {
     if (r->val.temp_t >= TEMP_HIGH_LIMIT) {
         LL_TIM_OC_SetCompareCH1(TIM16, 2400);
         LL_TIM_EnableCounter(TIM16);
-        LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
         r->fl.tl494_on = 0;
         r->fl.overheat = 1;
         MGL_SET_CLR(FONT_COLOR);
         MGL_SET_FONT(FONT_5x8_FP);
         MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
-        MGL_PrintStr("OVERHEAT", &mgl_t);
+        MGL_PRINT_STRING("OVERHEAT");
     }
 }
 
@@ -594,18 +587,15 @@ void TempControl(rps_type *r) {
  * @param[in] rps_type r
  */
 void CurrControl(rps_type *r) {
-    if (r == 0) {
-        return;
-    }
+    RPS_CHECK_STRUCT_PTR();
 
     if (r->val.curr > VAL_CURR_MAX) {
-        LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
-        r->fl.tl494_on = 0;
-        r->fl.overcurr = 1;
+        LL_TIM_OC_SetCompareCH1(TIM16, 2400);
+        LL_TIM_EnableCounter(TIM16);
         MGL_SET_CLR(FONT_COLOR);
         MGL_SET_FONT(FONT_5x8_FP);
         MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
-        MGL_PrintStr("OVERCURRENT", &mgl_t);
+        MGL_PRINT_STRING("OVERCURRENT");
     }
 }
 /* USER CODE END 4 */
