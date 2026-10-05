@@ -6,6 +6,7 @@
  */
 #include "MGL.h"
 #include "M_INA226.h"
+#include "app_types.h"
 #include "display.h"
 #include "main.h"
 #include <stdlib.h>
@@ -36,7 +37,7 @@ void DISP_GraphBarsStructInit(rps_type *r) {
     volt_bar.bg_color = BG_COLOR;
     volt_bar.stroke_color = BAR_STROKE_COLOR;
 
-    curr_bar.num = &r->val.curr;
+    curr_bar.num = (&r->val.curr_u);
     curr_bar.num_max = VAL_CURR_MAX;
     curr_bar.x = BAR_CURRENT_X;
     curr_bar.y = BAR_CURRENT_Y;
@@ -139,7 +140,7 @@ void DISP_MeasPage(rps_type *r) {
         MGL_SetCursor(VAW_CURRENT_X, VAW_CURRENT_Y, &mgl_t);
         // MGL_PrintFloatTiny_R(abs(r->val.curr - r->val.i_sp_val) < 3 ?
         // r->val.i_sp_val : r->val.curr, 4, 3, &mgl_t);
-        MGL_PrintFloatTiny_R(r->val.curr, 4, 3, &mgl_t);
+        MGL_PrintFloatTiny_R(r->val.curr_u, 4, 3, &mgl_t);
         MGL_DrawBar(&curr_bar);
     }
 
@@ -162,17 +163,52 @@ void DISP_MeasPage(rps_type *r) {
                       LOW_INF_BAR_LOW_Y, &mgl_t);
         MGL_PrintInt16_L((int8_t)r->val.temp_t, 3, &mgl_t);
     }
-
-/*     MGL_SET_CLR(FONT_COLOR);
-    MGL_SET_FONT(FONT_5x8_FP);
-    MGL_SetCursor(5 + 2 * (FONT_5x8_WIDTH + FONT_5x8_SPACING),
-                  LOW_INF_BAR_UPP_Y, &mgl_t);
-    MGL_PrintInt16_L(INA_GetCalVal(), 5, &mgl_t); */
-
     volt_old = r->val.volt;
     curr_old = r->val.curr;
     watt_old = r->val.watt;
     temp_old = r->val.temp_t;
 
     r->fl.disp_meas_page = 0;
+}
+
+void DISP_ErrBlock(rps_type *r) {
+    RPS_CHECK_STRUCT_PTR();
+    if (r->fl.overheat == 0 || r->fl.overcurr == 0 || r->fl.rev_curr == 0) {
+        return;
+    }
+
+    if (r->fl.overheat) {
+        r->fl.overcurr = 0;
+        r->fl.rev_curr = 0;
+        MGL_SET_CLR(FONT_COLOR);
+        MGL_SET_FONT(FONT_5x8_FP);
+        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        MGL_PRINT_STRING("OVERHEAT");
+    } else {
+        MGL_DRAW_RECT_WH(60, LOW_INF_BAR_LOW_Y,
+                         8 * (FONT_5x8_SPACING + FONT_5x8_WIDTH),
+                         FONT_5x8_HEIGHT, BG_COLOR);
+    }
+
+    if (r->fl.overcurr) {
+        r->fl.rev_curr = 0;
+        MGL_SET_CLR(FONT_COLOR);
+        MGL_SET_FONT(FONT_5x8_FP);
+        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        MGL_PRINT_STRING("OVERCURR");
+    } else {
+        MGL_DRAW_RECT_WH(60, LOW_INF_BAR_LOW_Y,
+                         8 * (FONT_5x8_SPACING + FONT_5x8_WIDTH),
+                         FONT_5x8_HEIGHT, BG_COLOR);
+    }
+    if (r->fl.rev_curr) {
+        MGL_SET_CLR(FONT_COLOR);
+        MGL_SET_FONT(FONT_5x8_FP);
+        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        MGL_PRINT_STRING("REV CURR");
+    } else {
+        MGL_DRAW_RECT_WH(60, LOW_INF_BAR_LOW_Y,
+                         8 * (FONT_5x8_SPACING + FONT_5x8_WIDTH),
+                         FONT_5x8_HEIGHT, BG_COLOR);
+    }
 }

@@ -41,10 +41,11 @@
 ////////////////////////////////////////////////////////////
 typedef struct _values_type {
     // VAW
-    uint16_t volt; ///< value from measuring source (INA226)
-    uint16_t curr; ///< value from measuring source (INA226)
-    uint16_t watt; ///< value from measuring source (INA226)
-    int8_t temp_t; ///< termperature from transisotors sink DS18B20
+    uint16_t volt;   ///< value from measuring source (INA226)
+    int16_t curr;    ///< value from measuring source (INA226)
+    uint16_t curr_u; ///< unsigned value of current
+    uint16_t watt;   ///< value from measuring source (INA226)
+    int8_t temp_t;   ///< termperature from transisotors sink DS18B20
 
 } values_type;
 
@@ -54,10 +55,10 @@ typedef struct _flags_type {
     unsigned temp_conv_ready : 1; ///< ds18b20 ready for temperature conversion
     unsigned disp_meas_page : 1;  ///< draw measurement page
     unsigned tl494_on : 1;        ///< TL494 is on
-    unsigned
-        overheat : 1; ///< transistors heat sink temperature high limit reached
-    unsigned overcurr : 1; ///< high current limit reached
-    unsigned reserved : 3; // reserved bits;
+    unsigned overheat : 1;        ///< transistors heat sink temp. high
+    unsigned overcurr : 1;        ///< high current limit reached
+    unsigned rev_curr : 1;        ///< reverse current detected
+    unsigned reserved : 2;        // reserved bits;
 
 } flags_type;
 

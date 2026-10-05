@@ -170,6 +170,7 @@ int main(void) {
             mls_tmr_vaw_conv = GetTick();
             VAW_Conversion(&rps);
             rps.fl.disp_meas_page = 1;
+            CurrControl(&rps);
         }
         // display handler
         if (rps.fl.disp_meas_page == 1) {
@@ -188,7 +189,6 @@ int main(void) {
             rps.fl.temp_conv_ready = 1;
             rps.val.temp_t = DS18B20_ReadTemp();
             TempControl(&rps);
-            CurrControl(&rps);
         }
         /* USER CODE END WHILE */
 
@@ -571,14 +571,14 @@ void TempControl(rps_type *r) {
         LL_TIM_EnableCounter(TIM16);
     }
     if (r->val.temp_t >= TEMP_HIGH_LIMIT) {
+        // fan rpm to max
         LL_TIM_OC_SetCompareCH1(TIM16, 2400);
         LL_TIM_EnableCounter(TIM16);
-        r->fl.tl494_on = 0;
+        //LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
+        //r->fl.tl494_on = 0;
         r->fl.overheat = 1;
-        MGL_SET_CLR(FONT_COLOR);
-        MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
-        MGL_PRINT_STRING("OVERHEAT");
+    } else {
+        r->fl.overheat = 1;
     }
 }
 
@@ -589,13 +589,21 @@ void TempControl(rps_type *r) {
 void CurrControl(rps_type *r) {
     RPS_CHECK_STRUCT_PTR();
 
-    if (r->val.curr > VAL_CURR_MAX) {
+    if (r->val.curr_u > VAL_CURR_MAX) {
         LL_TIM_OC_SetCompareCH1(TIM16, 2400);
         LL_TIM_EnableCounter(TIM16);
-        MGL_SET_CLR(FONT_COLOR);
-        MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
-        MGL_PRINT_STRING("OVERCURRENT");
+        r->fl.overcurr = 1;
+        //LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
+        //r->fl.tl494_on = 0;
+    } else {
+        r->fl.overcurr = 0;
+    }
+
+    if (r->val.curr < -3) {
+        r->fl.rev_curr = 1;
+        //LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
+    } else {
+        r->fl.rev_curr = 0;
     }
 }
 /* USER CODE END 4 */
