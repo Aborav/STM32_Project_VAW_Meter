@@ -95,7 +95,7 @@ void DISP_StartPage(rps_type *r) {
     // Information bar
     MGL_SET_CLR(FONT_COLOR);
     MGL_SET_FONT(FONT_5x8_FP);
-    MGL_SetCursor(5, LOW_INF_BAR_LOW_Y, &mgl_t);
+    MGL_SetCursor(LOW_INF_BAR_X, LOW_INF_BAR_LOW_Y, &mgl_t);
     MGL_PrintStr("t:\0", &mgl_t);
 }
 
@@ -153,8 +153,8 @@ void DISP_MeasPage(rps_type *r) {
     if (temp_old - r->val.temp_t != 0) {
         MGL_SET_CLR(FONT_COLOR);
         MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SetCursor(5 + 2 * (FONT_5x8_WIDTH + FONT_5x8_SPACING),
-                      LOW_INF_BAR_LOW_Y, &mgl_t);
+        MGL_SET_CURSOR(LOW_INF_BAR_X + 2 * (FONT_5x8_WIDTH + FONT_5x8_SPACING),
+                       LOW_INF_BAR_LOW_Y);
         MGL_PrintInt16_L((int8_t)r->val.temp_t, 3, &mgl_t);
     }
     volt_old = r->val.volt;
@@ -172,17 +172,17 @@ void DISP_ErrString(rps_type *r) {
     } else {
         MGL_SET_CLR(FONT_COLOR);
         MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        MGL_SET_CURSOR(LOW_INF_BAR_X + 70, LOW_INF_BAR_LOW_Y);
     }
 
     if (r->fl.overheat) {
-        r->fl.overcurr = 0; //overcurrent error override
-        r->fl.rev_curr = 0; //reverse current error override
+        r->fl.overcurr = 0; // overcurrent error override
+        r->fl.rev_curr = 0; // reverse current error override
         MGL_PRINT_STRING("OVERHEAT");
     }
 
     if (r->fl.overcurr) {
-        r->fl.rev_curr = 0; //reverse current error override
+        r->fl.rev_curr = 0; // reverse current error override
         MGL_PRINT_STRING("OVERCURR");
     }
 

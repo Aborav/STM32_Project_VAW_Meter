@@ -61,8 +61,8 @@
 uint8_t id_bytes[8] = {0x28, 0x61, 0x64, 0x0A, 0xFD, 0x4D, 0xD9, 0xBB};
 
 extern volatile uint32_t tick_cnt; ///< sys tick counter
-uint32_t mls_tmr_vaw_conv;         ///< ms timer for VAW conversion/display refresh
-uint32_t mls_tmr_temp_conv;        ///< ms timer for temperature conversion
+uint32_t mls_tmr_vaw_conv;  ///< ms timer for VAW conversion/display refresh
+uint32_t mls_tmr_temp_conv; ///< ms timer for temperature conversion
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -521,14 +521,14 @@ static void MX_GPIO_Init(void) {
  * @return None
  */
 void SysTick_Init(void) {
-    SysTick->LOAD = 48000 - 1; //1 ms reload 48MHz/1000=48000
-    SysTick->VAL = 0; //reload
-    SysTick->CTRL = 0; //reload
-    //CLKSOURCE -> CPU
+    SysTick->LOAD = 48000 - 1; // 1 ms reload 48MHz/1000=48000
+    SysTick->VAL = 0;          // reload
+    SysTick->CTRL = 0;         // reload
+    // CLKSOURCE -> CPU
     SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk);
-    //TICKINT) -> IRQ enable
+    // TICKINT) -> IRQ enable
     SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
-    //ENABLE -> counter enable
+    // ENABLE -> counter enable
     SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
 }
 

@@ -61,8 +61,9 @@
 #define LOW_ST_BAR_W 146U
 #define LOW_ST_BAR_H 21U
 
-#define LOW_INF_BAR_UPP_Y 102U ///< upper string X
-#define LOW_INF_BAR_LOW_Y 112U ///< lower string X
+#define LOW_INF_BAR_X 5
+#define LOW_INF_BAR_UPP_Y 102U
+#define LOW_INF_BAR_LOW_Y 112U
 
 // Progress bar
 /////////////////////////////////////////////////////
