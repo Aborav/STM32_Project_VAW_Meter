@@ -14,7 +14,7 @@
 /*---------------------------------------------TYPES------------------------------------------------*/
 
 // Progress bars structures initialization
-mgl_bar_gr_type volt_bar, curr_bar, watt_bar; // progress bars init
+static mgl_bar_gr_type volt_bar, curr_bar, watt_bar; // progress bars init
 
 /*---------------------------------------------FUNCTIONS------------------------------------------------*/
 /////////////////////////////////////////////////////////////////////////
@@ -97,12 +97,6 @@ void DISP_StartPage(rps_type *r) {
     MGL_SET_FONT(FONT_5x8_FP);
     MGL_SetCursor(5, LOW_INF_BAR_LOW_Y, &mgl_t);
     MGL_PrintStr("t:\0", &mgl_t);
-    // MGL_SetCursor(5, LOW_INF_BAR_LOW_Y, &mgl_t);
-    // MGL_PrintStr("DAC_I:\0", &mgl_t);
-    // MGL_SetCursor(80, LOW_INF_BAR_UPP_Y, &mgl_t);
-    // MGL_PrintStr("SP_U:\0", &mgl_t);
-    // MGL_SetCursor(80, LOW_INF_BAR_LOW_Y, &mgl_t);
-    // MGL_PrintStr("SP_I:\0", &mgl_t);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -171,44 +165,28 @@ void DISP_MeasPage(rps_type *r) {
     r->fl.disp_meas_page = 0;
 }
 
-void DISP_ErrBlock(rps_type *r) {
+void DISP_ErrString(rps_type *r) {
     RPS_CHECK_STRUCT_PTR();
-    if (r->fl.overheat == 0 || r->fl.overcurr == 0 || r->fl.rev_curr == 0) {
+    if (r->fl.overheat == 0 && r->fl.overcurr == 0 && r->fl.rev_curr == 0) {
         return;
+    } else {
+        MGL_SET_CLR(FONT_COLOR);
+        MGL_SET_FONT(FONT_5x8_FP);
+        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
     }
 
     if (r->fl.overheat) {
-        r->fl.overcurr = 0;
-        r->fl.rev_curr = 0;
-        MGL_SET_CLR(FONT_COLOR);
-        MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        r->fl.overcurr = 0; //overcurrent error override
+        r->fl.rev_curr = 0; //reverse current error override
         MGL_PRINT_STRING("OVERHEAT");
-    } else {
-        MGL_DRAW_RECT_WH(60, LOW_INF_BAR_LOW_Y,
-                         8 * (FONT_5x8_SPACING + FONT_5x8_WIDTH),
-                         FONT_5x8_HEIGHT, BG_COLOR);
     }
 
     if (r->fl.overcurr) {
-        r->fl.rev_curr = 0;
-        MGL_SET_CLR(FONT_COLOR);
-        MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
+        r->fl.rev_curr = 0; //reverse current error override
         MGL_PRINT_STRING("OVERCURR");
-    } else {
-        MGL_DRAW_RECT_WH(60, LOW_INF_BAR_LOW_Y,
-                         8 * (FONT_5x8_SPACING + FONT_5x8_WIDTH),
-                         FONT_5x8_HEIGHT, BG_COLOR);
     }
+
     if (r->fl.rev_curr) {
-        MGL_SET_CLR(FONT_COLOR);
-        MGL_SET_FONT(FONT_5x8_FP);
-        MGL_SET_CURSOR(60, LOW_INF_BAR_LOW_Y);
         MGL_PRINT_STRING("REV CURR");
-    } else {
-        MGL_DRAW_RECT_WH(60, LOW_INF_BAR_LOW_Y,
-                         8 * (FONT_5x8_SPACING + FONT_5x8_WIDTH),
-                         FONT_5x8_HEIGHT, BG_COLOR);
     }
 }

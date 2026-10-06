@@ -56,13 +56,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
 // DS18B20 sensor ID
 uint8_t id_bytes[8] = {0x28, 0x61, 0x64, 0x0A, 0xFD, 0x4D, 0xD9, 0xBB};
 
 extern volatile uint32_t tick_cnt; ///< sys tick counter
-uint32_t mls_tmr_vaw_conv;         ///< ms timer for VAW conversion
+uint32_t mls_tmr_vaw_conv;         ///< ms timer for VAW conversion/display refresh
 uint32_t mls_tmr_temp_conv;        ///< ms timer for temperature conversion
-uint32_t mls_btn_deb;              ///< ms timer for button debounce
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -140,6 +140,7 @@ int main(void) {
     rps.val.watt = VAL_WATT_MAX;
     DISP_StartPage(&rps);
     DISP_MeasPage(&rps);
+    LL_mDelay(200);
 
     // Temp sensor
     //////////////////////////////////////////
@@ -150,7 +151,7 @@ int main(void) {
     INA_Init();
     INA_SetCalVal(4800);
 
-    // Fan timer
+    // Fan PWM timer
     ////////////////////////////////////////
     LL_TIM_CC_EnableChannel(TIM16, LL_TIM_CHANNEL_CH1);
     LL_TIM_EnableAllOutputs(TIM16);
@@ -175,6 +176,7 @@ int main(void) {
         // display handler
         if (rps.fl.disp_meas_page == 1) {
             DISP_MeasPage(&rps);
+            DISP_ErrString(&rps);
             rps.fl.disp_meas_page = 0;
         }
         // DS18B20 temperature request
@@ -519,22 +521,14 @@ static void MX_GPIO_Init(void) {
  * @return None
  */
 void SysTick_Init(void) {
-    // 1. Установить RELOAD для 1 мс (48 МГц / 1000 = 48000)
-    SysTick->LOAD = 48000 - 1; // 47999
-
-    // 2. Сбросить текущее значение
-    SysTick->VAL = 0;
-
-    // 3. Настроить управление с помощью CMSIS макросов
-    //    Очистить все биты (на всякий случай)
-    SysTick->CTRL = 0;
-    //    Bit 2 (CLKSOURCE) = 1 -> такт от CPU (48 МГц)
+    SysTick->LOAD = 48000 - 1; //1 ms reload 48MHz/1000=48000
+    SysTick->VAL = 0; //reload
+    SysTick->CTRL = 0; //reload
+    //CLKSOURCE -> CPU
     SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk);
-
-    //    Bit 1 (TICKINT) = 1 -> разрешить прерывание
+    //TICKINT) -> IRQ enable
     SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
-
-    //    Bit 0 (ENABLE) = 1 -> включить таймер
+    //ENABLE -> counter enable
     SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
 }
 
@@ -546,7 +540,7 @@ void SysTick_Init(void) {
 uint32_t GetTick(void) { return tick_cnt; }
 
 /**
- * @brief shut off and fan conctrol according to temperature
+ * @brief overheat catching and fan conctrol function
  * @param[in] rps_type r
  */
 void TempControl(rps_type *r) {
@@ -574,16 +568,14 @@ void TempControl(rps_type *r) {
         // fan rpm to max
         LL_TIM_OC_SetCompareCH1(TIM16, 2400);
         LL_TIM_EnableCounter(TIM16);
-        //LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
-        //r->fl.tl494_on = 0;
-        r->fl.overheat = 1;
-    } else {
+        // LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
+        // r->fl.tl494_on = 0;
         r->fl.overheat = 1;
     }
 }
 
 /**
- * @brief shut off in case of overcurrent
+ * @brief overcurrent/reverse current catching function
  * @param[in] rps_type r
  */
 void CurrControl(rps_type *r) {
@@ -593,17 +585,15 @@ void CurrControl(rps_type *r) {
         LL_TIM_OC_SetCompareCH1(TIM16, 2400);
         LL_TIM_EnableCounter(TIM16);
         r->fl.overcurr = 1;
-        //LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
-        //r->fl.tl494_on = 0;
-    } else {
-        r->fl.overcurr = 0;
+        // LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
+        // r->fl.tl494_on = 0;
     }
 
     if (r->val.curr < -3) {
         r->fl.rev_curr = 1;
-        //LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
-    } else {
-        r->fl.rev_curr = 0;
+        LL_TIM_OC_SetCompareCH1(TIM16, 2400);
+        LL_TIM_EnableCounter(TIM16);
+        // LL_GPIO_ResetOutputPin(TL494_ON_GPIO_Port, TL494_ON_Pin);
     }
 }
 /* USER CODE END 4 */

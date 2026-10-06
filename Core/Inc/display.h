@@ -76,12 +76,13 @@
 #define BAR_LENGTH 82U
 
 /*---------------------------------------------TYPES------------------------------------------------*/
-extern mgl_bar_gr_type volt_bar, curr_bar, watt_bar; // progress bars init
+//extern mgl_bar_gr_type volt_bar, curr_bar, watt_bar; // progress bars init
 
 /*---------------------------------------------FUNCTIONS------------------------------------------------*/
 void DISP_GraphBarsStructInit(rps_type *r);
 void DISP_StartPage(rps_type *r);
 void DISP_MeasPage(rps_type *r);
+void DISP_ErrString(rps_type *r);
 
 #endif /* INC_DISPLAY_H_ */
 

@@ -27,8 +27,6 @@
 #define VAL_CURR_MAX 5000U
 #define VAL_WATT_MAX 1300U
 
-#define BTN_DEBOUNCE_DELAY 300U
-
 #define TEMP_1ST_LIMIT 35
 #define TEMP_2ND_LIMIT 40
 #define TEMP_3RD_LIMIT 45
@@ -40,7 +38,6 @@
 // Values structure
 ////////////////////////////////////////////////////////////
 typedef struct _values_type {
-    // VAW
     uint16_t volt;   ///< value from measuring source (INA226)
     int16_t curr;    ///< value from measuring source (INA226)
     uint16_t curr_u; ///< unsigned value of current
